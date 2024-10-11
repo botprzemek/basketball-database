@@ -15,9 +15,6 @@ services:
         source: ./src/initialize.sh
         target: /cockroach/initialize.sh
     command: bash ./initialize.sh database-1
-    ports:
-      - "0.0.0.0:3002:8080"
-      - "0.0.0.0:26257:26257"
 
   database-2:
     restart: always
