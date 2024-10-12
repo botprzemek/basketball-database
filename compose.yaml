@@ -12,11 +12,10 @@ services:
         volume:
           nocopy: true
       - type: bind
-        source: ./src/initialize.sh
-        target: /cockroach/initialize.sh
-    command: bash ./initialize.sh database-1
+        source: ./src
+        target: /cockroach/src
+    command: bash ./src/initialize.sh database-1
     ports:
-      - "0.0.0.0:3002:8080"
       - "0.0.0.0:26257:26257"
 
   database-2:
@@ -32,9 +31,9 @@ services:
         volume:
           nocopy: true
       - type: bind
-        source: ./src/initialize.sh
-        target: /cockroach/initialize.sh
-    command: bash ./initialize.sh database-2
+        source: ./src
+        target: /cockroach/src
+    command: bash ./src/initialize.sh database-2
     depends_on:
       - database-1
 
@@ -51,9 +50,9 @@ services:
         volume:
           nocopy: true
       - type: bind
-        source: ./src/initialize.sh
-        target: /cockroach/initialize.sh
-    command: bash ./initialize.sh database-3
+        source: ./src
+        target: /cockroach/src
+    command: bash ./src/initialize.sh database-3
     depends_on:
       - database-1
 

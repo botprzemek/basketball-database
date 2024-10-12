@@ -15,4 +15,4 @@ cockroach start \
 && cockroach sql \
  --insecure \
  --host="$HOST:26257" \
- --execute="CREATE DATABASE basketball; CREATE USER basketball WITH PASSWORD NULL; ALTER DATABASE basketball OWNER TO basketball; CREATE TYPE basketball.position AS ENUM ('PG', 'SG', 'SF', 'PF', 'C'); ALTER TYPE basketball.position OWNER TO basketball;"
+ --file src/initialize.sql
