@@ -23,14 +23,14 @@ CREATE TABLE IF NOT EXISTS basketball.identities (
 );
 
 CREATE TABLE IF NOT EXISTS basketball.users (
-    id             UUID NOT NULL UNIQUE PRIMARY KEY,
-    identity_id    UUID NOT NULL UNIQUE REFERENCES basketball.identities(id) ON DELETE CASCADE,
-    username       VARCHAR(63) NOT NULL UNIQUE,
-    recovery_email VARCHAR(127) DEFAULT NULL,
-    password       VARCHAR(255) NOT NULL,
-    refresh_token  VARCHAR(255) DEFAULT NULL,
-    verify_token   VARCHAR(255) DEFAULT NULL,
-    logged_at      TIMESTAMP DEFAULT NULL
+    id                 UUID NOT NULL UNIQUE PRIMARY KEY,
+    identity_id        UUID NOT NULL UNIQUE REFERENCES basketball.identities(id) ON DELETE CASCADE,
+    username           VARCHAR(63) NOT NULL UNIQUE,
+    recovery_email     VARCHAR(127) DEFAULT NULL,
+    password           VARCHAR(255) NOT NULL,
+    refresh_token      VARCHAR(255) DEFAULT NULL,
+    verification_token VARCHAR(255) NOT NULL,
+    logged_at          TIMESTAMP DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS basketball.teams (
@@ -61,9 +61,9 @@ INSERT INTO basketball.identities (id, first_name, last_name, email, phone, birt
     ('00000000-0000-0000-0000-000000000001', 'Adam', 'Silver', 'adam.silver@nba.com', '5550000001', '1962-04-25', '12345678901'),
     ('00000000-0000-0000-0000-000000000002', 'Frank', 'Wallace', 'frank.wallace@nba.com', '5550000002', '1988-07-14', '12345678902');
 
-INSERT INTO basketball.users (id, identity_id, username, password) VALUES
-    ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', 'adam.silver', 'password_hash_1'),
-    ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000002', 'frank.wallace', 'password_hash_2');
+INSERT INTO basketball.users (id, identity_id, username, password, verification_token) VALUES
+    ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', 'adam.silver', 'password_hash_1', 'verification-token-1'),
+    ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000002', 'frank.wallace', 'password_hash_2', 'verification-token-2');
 
 INSERT INTO basketball.teams (id, user_id, name) VALUES
     ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000003', 'Golden State Warriors');
