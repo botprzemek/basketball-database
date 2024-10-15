@@ -10,21 +10,50 @@ CREATE TYPE basketball.position AS ENUM ('PG', 'SG', 'SF', 'PF', 'C');
 
 CREATE TYPE basketball.main_hand AS ENUM ('LEFT', 'RIGHT', 'AMBIDEXTROUS');
 
+CREATE TABLE IF NOT EXISTS basketball.tenants (
+    id           UUID NOT NULL UNIQUE PRIMARY KEY,
+    name         STRING NOT NULL UNIQUE,
+    display_name STRING DEFAULT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMP DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS basketball.groups (
+    id           UUID NOT NULL UNIQUE PRIMARY KEY,
+    tenant_id    UUID NOT NULL REFERENCES basketball.tenants(id) ON DELETE CASCADE,
+    name         STRING NOT NULL UNIQUE,
+    display_name STRING DEFAULT NULL,
+    description  STRING DEFAULT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMP DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS basketball.permissions (
+    id         UUID NOT NULL UNIQUE PRIMARY KEY,
+    group_id   UUID NOT NULL REFERENCES basketball.tenants(id) ON DELETE CASCADE,
+    resource   STRING NOT NULL,
+    can_read   BOOLEAN DEFAULT TRUE,
+    can_write  BOOLEAN DEFAULT FALSE,
+    can_update BOOLEAN DEFAULT FALSE,
+    can_delete BOOLEAN DEFAULT FALSE
+);
+
 CREATE TABLE IF NOT EXISTS basketball.identities (
-     id           UUID NOT NULL UNIQUE PRIMARY KEY,
-     first_name   STRING NOT NULL,
-     last_name    STRING NOT NULL,
-     email        STRING DEFAULT NULL,
-     phone        STRING NOT NULL,
-     birth_date   DATE NOT NULL,
-     pesel_number STRING NOT NULL UNIQUE,
-     created_at     TIMESTAMP NOT NULL DEFAULT now(),
-     updated_at     TIMESTAMP DEFAULT NULL
+    id           UUID NOT NULL UNIQUE PRIMARY KEY,
+    first_name   STRING NOT NULL,
+    last_name    STRING NOT NULL,
+    email        STRING DEFAULT NULL,
+    phone        STRING NOT NULL,
+    birth_date   DATE NOT NULL,
+    pesel_number STRING NOT NULL UNIQUE,
+    created_at   TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMP DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS basketball.users (
     id             UUID NOT NULL UNIQUE PRIMARY KEY,
     identity_id    UUID REFERENCES basketball.identities(id) ON DELETE CASCADE,
+    group_id       UUID REFERENCES basketball.groups(id) ON DELETE CASCADE,
     email          STRING NOT NULL UNIQUE,
     recovery_email STRING DEFAULT NULL,
     password       STRING NOT NULL,
@@ -33,6 +62,12 @@ CREATE TABLE IF NOT EXISTS basketball.users (
     logged_at      TIMESTAMP DEFAULT NULL,
     created_at     TIMESTAMP NOT NULL DEFAULT now(),
     updated_at     TIMESTAMP DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS basketball.users_groups (
+    user_id UUID NOT NULL REFERENCES basketball.users(id) ON DELETE CASCADE,
+    group_id UUID NOT NULL REFERENCES basketball.groups(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL REFERENCES basketball.tenants(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS basketball.players (
