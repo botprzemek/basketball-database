@@ -14,11 +14,12 @@ CREATE TABLE IF NOT EXISTS basketball.identities (
      id           UUID NOT NULL UNIQUE PRIMARY KEY,
      first_name   STRING NOT NULL,
      last_name    STRING NOT NULL,
-     full_name    STRING GENERATED ALWAYS AS (first_name || ' ' || last_name) STORED,
      email        STRING DEFAULT NULL,
      phone        STRING NOT NULL,
      birth_date   DATE NOT NULL,
-     pesel_number STRING NOT NULL UNIQUE
+     pesel_number STRING NOT NULL UNIQUE,
+     created_at     TIMESTAMP NOT NULL DEFAULT now(),
+     updated_at     TIMESTAMP DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS basketball.users (
