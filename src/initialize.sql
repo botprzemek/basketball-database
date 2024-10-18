@@ -102,7 +102,26 @@ INSERT INTO basketball.players (id, identity_id, user_id, team_id, nickname, num
     ('00000000-0000-0000-0000-000000000029', '00000000-0000-0000-0000-000000000017', '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000006', 'BP', 2, 'SG', 1.93, 91, 2.11, 'RIGHT'),
     ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000018', '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000006', 'TJD', 32, 'PF', 2.06, 106, 2.13, 'RIGHT');
 
--- TEAM PLAYERS VIEW
+CREATE VIEW basketball.players_identities AS
+    SELECT
+        players.id,
+        players.identity_id,
+        players.user_id,
+        players.team_id,
+        identities.first_name,
+        identities.last_name,
+        players.nickname,
+        players.number,
+        players.position,
+        players.height,
+        players.weight,
+        players.wingspan,
+        players.main_hand
+    FROM basketball.players, basketball.identities
+    WHERE players.identity_id = identities.id;
+
+-- CREATE VIEW basketball.teams_players AS
+--     SELECT * FROM basketball.players_identities, basketball.teams GROUP BY teams.name, players_identities.last_name ORDER BY players_identities.last_name;
 
 CREATE USER IF NOT EXISTS basketball WITH PASSWORD NULL;
 
