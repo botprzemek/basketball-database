@@ -168,19 +168,34 @@ INSERT INTO basketball.users (identity_id, username, password, verification_toke
         'verification_token'
     );
 
--- INSERT INTO basketball.users_permissions (user_id, permissions_id) VALUES
---     (
---         (SELECT id FROM basketball.users WHERE username = 'adam.silver'),
---         (SELECT id FROM basketball.permissions WHERE  = 'adam.silver@nba.com')
---     ),
---     (
---         (SELECT id FROM basketball.identities WHERE email = 'adam.silver@nba.com'),
---         (SELECT id FROM basketball.identities WHERE email = 'adam.silver@nba.com')
---     ),
---     (
---         (SELECT id FROM basketball.identities WHERE email = 'adam.silver@nba.com'),
---         (SELECT id FROM basketball.identities WHERE email = 'adam.silver@nba.com')
---     );
+INSERT INTO basketball.users_permissions (user_id, permissions_id)
+VALUES ((SELECT id FROM users WHERE users.username = 'adam.silver'),
+        (SELECT permissions.id
+         FROM permissions,
+              actions,
+              resources
+         WHERE actions.id = permissions.action_id
+           AND public.resources.id = permissions.resource_id
+           AND actions.name = 'ALL'
+           AND resources.name = 'users')),
+       ((SELECT id FROM users WHERE users.username = 'adam.silver'),
+        (SELECT permissions.id
+         FROM permissions,
+              actions,
+              resources
+         WHERE actions.id = permissions.action_id
+           AND public.resources.id = permissions.resource_id
+           AND actions.name = 'ALL'
+           AND resources.name = 'teams')),
+       ((SELECT id FROM users WHERE users.username = 'adam.silver'),
+        (SELECT permissions.id
+         FROM permissions,
+              actions,
+              resources
+         WHERE actions.id = permissions.action_id
+           AND public.resources.id = permissions.resource_id
+           AND actions.name = 'ALL'
+           AND resources.name = 'players'));
 
 INSERT INTO basketball.identities (first_name, last_name, email, birth_date) VALUES
     ('Stephen', 'Curry', 'stephen.curry@nba.com', '1988-03-14'),
