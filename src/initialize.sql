@@ -41,12 +41,27 @@ CREATE TABLE IF NOT EXISTS basketball.permissions (
     UNIQUE (action_id, resource_id)
 );
 
+CREATE TABLE IF NOT EXISTS basketball.roles (
+    id   UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    name VARCHAR(63) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS basketball.roles_permissions (
+    role_id UUID NOT NULL,
+    permission_id UUID NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES basketball.roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES basketball.permissions(id) ON DELETE CASCADE,
+    INDEX (role_id, permission_id),
+    UNIQUE (role_id, permission_id)
+);
+
 CREATE TABLE IF NOT EXISTS basketball.teams (
     id         UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     name       VARCHAR(63) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP DEFAULT NULL,
-    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id)
 );
 
@@ -72,19 +87,18 @@ CREATE TABLE IF NOT EXISTS basketball.users (
     refresh_token      VARCHAR(255) DEFAULT NULL,
     verification_token VARCHAR(255) NOT NULL,
     logged_at          TIMESTAMP DEFAULT NULL,
-    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE,
+    is_deleted         BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id),
     FOREIGN KEY (identity_id) REFERENCES basketball.identities(id) ON DELETE CASCADE,
-    INDEX (username)
+    INDEX (identity_id, username)
 );
 
-CREATE TABLE IF NOT EXISTS basketball.users_permissions (
-    user_id        UUID NOT NULL,
-    permissions_id UUID NOT NULL,
+CREATE TABLE IF NOT EXISTS basketball.users_roles (
+    user_id UUID NOT NULL,
+    role_id UUID NOT NULL,
     FOREIGN KEY (user_id) REFERENCES basketball.users(id) ON DELETE CASCADE,
-    FOREIGN KEY (permissions_id) REFERENCES basketball.permissions(id) ON DELETE CASCADE,
-    INDEX (user_id, permissions_id),
-    UNIQUE (user_id, permissions_id)
+    FOREIGN KEY (role_id) REFERENCES basketball.roles(id) ON DELETE CASCADE,
+    INDEX (user_id, role_id)
 );
 
 CREATE TABLE basketball.access_logs (
@@ -117,6 +131,10 @@ CREATE TABLE IF NOT EXISTS basketball.players (
     INDEX (identity_id, team_id)
 );
 
+-- Views
+
+-- TODO
+
 -- Grants
 
 CREATE USER IF NOT EXISTS basketball WITH PASSWORD NULL;
@@ -142,9 +160,19 @@ INSERT INTO basketball.resources (name) VALUES
     ('users');
 
 INSERT INTO basketball.permissions (action_id, resource_id)
-SELECT actions.id, resources.id
+SELECT
+    actions.id,
+    resources.id
 FROM basketball.actions
 CROSS JOIN basketball.resources;
+
+INSERT INTO basketball.roles (name) VALUES
+    ('admin'),
+    ('coach'),
+    ('member');
+
+INSERT INTO basketball.roles_permissions (role_id, permission_id) VALUES
+    ();
 
 INSERT INTO basketball.teams (name) VALUES
     ('Golden State Warriors'),
@@ -167,35 +195,6 @@ INSERT INTO basketball.users (identity_id, username, password, verification_toke
         'hashed_password',
         'verification_token'
     );
-
-INSERT INTO basketball.users_permissions (user_id, permissions_id)
-VALUES ((SELECT id FROM users WHERE users.username = 'adam.silver'),
-        (SELECT permissions.id
-         FROM permissions,
-              actions,
-              resources
-         WHERE actions.id = permissions.action_id
-           AND public.resources.id = permissions.resource_id
-           AND actions.name = 'ALL'
-           AND resources.name = 'users')),
-       ((SELECT id FROM users WHERE users.username = 'adam.silver'),
-        (SELECT permissions.id
-         FROM permissions,
-              actions,
-              resources
-         WHERE actions.id = permissions.action_id
-           AND public.resources.id = permissions.resource_id
-           AND actions.name = 'ALL'
-           AND resources.name = 'teams')),
-       ((SELECT id FROM users WHERE users.username = 'adam.silver'),
-        (SELECT permissions.id
-         FROM permissions,
-              actions,
-              resources
-         WHERE actions.id = permissions.action_id
-           AND public.resources.id = permissions.resource_id
-           AND actions.name = 'ALL'
-           AND resources.name = 'players'));
 
 INSERT INTO basketball.identities (first_name, last_name, email, birth_date) VALUES
     ('Stephen', 'Curry', 'stephen.curry@nba.com', '1988-03-14'),
